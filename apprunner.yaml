@@ -1,0 +1,19 @@
+# Optional: App Runner source-code (non-Docker) configuration.
+# If you deploy the image from ECR using the Dockerfile, App Runner ignores this file.
+version: 1.0
+runtime: nodejs22
+build:
+  commands:
+    build:
+      - npm ci
+      - npm run build
+run:
+  runtime-version: 22
+  command: node .next/standalone/server.js
+  network:
+    port: 3000
+  env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: "3000"

@@ -1,0 +1,12 @@
+node_modules
+.next
+.git
+.github
+docs
+*.md
+.env
+.env.local
+npm-debug.log*
+Dockerfile
+docker-compose.yml
+shot.mjs
