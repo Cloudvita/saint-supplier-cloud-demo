@@ -1,27 +1,16 @@
-import { drizzle } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
+import { drizzle } from "drizzle-orm/node-postgres";
+import { Pool } from "pg";
 import * as schema from "./schema";
 
-const connectionString = process.env.DATABASE_URL;
-if (!connectionString) {
-  throw new Error("DATABASE_URL is not set. Copy .env.example to .env and fill it in.");
-}
+const connectionString =
+  process.env.DATABASE_URL || "postgresql://postgres:postgres@localhost:5432/placeholder";
 
-const globalForDb = globalThis as unknown as { sql?: ReturnType<typeof postgres> };
+const pool = new Pool({
+  connectionString,
+  ssl:
+    process.env.DATABASE_URL && !process.env.DATABASE_URL.includes("localhost")
+      ? { rejectUnauthorized: false }
+      : false,
+});
 
-/**
- * One pooled client per process. RDS requires TLS — postgres.js picks that up
- * from `?sslmode=require` in the URL.
- */
-const client =
-  globalForDb.sql ??
-  postgres(connectionString, {
-    max: Number(process.env.DB_POOL_MAX ?? 10),
-    idle_timeout: 20,
-    connect_timeout: 10,
-  });
-
-if (process.env.NODE_ENV !== "production") globalForDb.sql = client;
-
-export const db = drizzle(client, { schema });
-export { schema };
+export const db = drizzle(pool, { schema });
