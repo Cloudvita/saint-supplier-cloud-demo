@@ -17,6 +17,12 @@ if (!process.env.DATABASE_URL) {
 const connectionString = process.env.DATABASE_URL;
 const isRemote = !connectionString.includes("localhost");
 
+// `??` only falls through on null/undefined, not on "" — an unset-but-present
+// env var (or any non-numeric value) would otherwise silently produce
+// Number("") === 0, a connection pool that can never serve a query and hangs
+// forever. `||` falls through on any falsy/NaN result too.
+const poolMax = Number(process.env.DB_POOL_MAX) || 10;
+
 /**
  * One pooled client per process (reused across warm invocations via Node's
  * module cache — no need for a manual globalThis cache here, which risks
@@ -28,7 +34,7 @@ const isRemote = !connectionString.includes("localhost");
  * harmless otherwise.
  */
 const client = postgres(connectionString, {
-  max: Number(process.env.DB_POOL_MAX ?? 10),
+  max: poolMax,
   idle_timeout: 20,
   connect_timeout: 10,
   ssl: isRemote ? "require" : undefined,

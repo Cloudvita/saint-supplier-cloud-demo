@@ -3,6 +3,7 @@ import { sql } from "drizzle-orm";
 import { db } from "@/db";
 
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 /** App Runner health check target. */
 export async function GET() {
