@@ -5,6 +5,7 @@ import { riskAlerts, severityRank, suppliers } from "@/db/schema";
 import SupplierForm from "@/components/SupplierForm";
 import SupplierTable, { type SupplierRow } from "@/components/SupplierTable";
 import AlertBanner from "@/components/AlertBanner";
+import AiGenieBar from "@/components/AiGenieBar";
 import { maskTaxId } from "@/lib/validation";
 
 export const dynamic = "force-dynamic";
@@ -52,8 +53,11 @@ export default async function Home() {
       </section>
 
       <section>
-        <div className="flex items-baseline justify-between">
-          <h2 className="text-xl font-bold">Recent Suppliers</h2>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-baseline gap-3">
+            <h2 className="text-xl font-bold">Recent Suppliers</h2>
+            <AiGenieBar />
+          </div>
           <span className="text-sm text-slate-500">
             Showing {supplierRows.length} of {count} record{count === 1 ? "" : "s"}
           </span>

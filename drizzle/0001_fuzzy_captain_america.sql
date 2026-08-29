@@ -1,0 +1,1 @@
+ALTER TYPE "public"."news_cadence" ADD VALUE 'DAILY' BEFORE 'WEEKLY';

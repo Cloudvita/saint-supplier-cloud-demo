@@ -12,7 +12,7 @@ export const taxClassifications = [
   "OTHER",
   "UNKNOWN",
 ] as const;
-export const newsCadences = ["WEEKLY", "MONTHLY"] as const;
+export const newsCadences = ["DAILY", "WEEKLY", "MONTHLY"] as const;
 
 const emptyToUndefined = (v: unknown) =>
   typeof v === "string" && v.trim() === "" ? undefined : v;

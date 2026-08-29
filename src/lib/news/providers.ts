@@ -66,7 +66,7 @@ export class MockNewsProvider implements NewsProvider {
 
   async fetchNews(q: NewsQuery): Promise<RawArticle[]> {
     const rand = seeded(q.companyName);
-    const windowDays = q.cadence === "WEEKLY" ? 7 : 30;
+    const windowDays = q.cadence === "DAILY" ? 1 : q.cadence === "WEEKLY" ? 7 : 30;
     const count = 3 + Math.floor(rand() * 3); // 3-5 articles
 
     const picked = [...TEMPLATES].sort(() => rand() - 0.5).slice(0, count);
@@ -87,7 +87,7 @@ export class NewsApiProvider implements NewsProvider {
   constructor(private apiKey: string) {}
 
   async fetchNews(q: NewsQuery): Promise<RawArticle[]> {
-    const windowDays = q.cadence === "WEEKLY" ? 7 : 30;
+    const windowDays = q.cadence === "DAILY" ? 1 : q.cadence === "WEEKLY" ? 7 : 30;
     const from = new Date(Date.now() - windowDays * 86400000).toISOString().slice(0, 10);
     const terms = [`"${q.companyName}"`, q.ticker, q.keywords].filter(Boolean).join(" OR ");
 

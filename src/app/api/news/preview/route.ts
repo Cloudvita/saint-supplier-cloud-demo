@@ -15,13 +15,14 @@ export async function POST(req: Request) {
     companyName?: string;
     ticker?: string;
     keywords?: string;
-    cadence?: "WEEKLY" | "MONTHLY";
+    cadence?: "DAILY" | "WEEKLY" | "MONTHLY";
   };
 
   if (!body.companyName?.trim()) {
     return NextResponse.json({ error: "companyName is required" }, { status: 400 });
   }
-  const cadence = body.cadence === "MONTHLY" ? "MONTHLY" : "WEEKLY";
+  const cadence =
+    body.cadence === "DAILY" || body.cadence === "MONTHLY" ? body.cadence : "WEEKLY";
 
   try {
     const provider = getNewsProvider();

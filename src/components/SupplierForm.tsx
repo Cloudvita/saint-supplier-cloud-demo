@@ -390,6 +390,7 @@ export default function SupplierForm() {
         <div>
           <label className="label">News Cadence</label>
           <select className="input" value={String(f.newsCadence)} onChange={(e) => set("newsCadence", e.target.value)}>
+            <option value="DAILY">Daily</option>
             <option value="WEEKLY">Weekly</option>
             <option value="MONTHLY">Monthly</option>
           </select>

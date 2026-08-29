@@ -134,7 +134,7 @@ export async function refreshSupplierNews(supplierId: string): Promise<RefreshRe
 }
 
 /** Batch entry point for the scheduled refresh (EventBridge -> /api/news/refresh). */
-export async function refreshDueSuppliers(cadence: "WEEKLY" | "MONTHLY") {
+export async function refreshDueSuppliers(cadence: "DAILY" | "WEEKLY" | "MONTHLY") {
   const due = await db
     .select({ id: suppliers.id })
     .from(suppliers)
@@ -146,6 +146,24 @@ export async function refreshDueSuppliers(cadence: "WEEKLY" | "MONTHLY") {
       results.push(await refreshSupplierNews(s.id));
     } catch (e) {
       console.error(`news refresh failed for ${s.id}`, e);
+    }
+  }
+  return results;
+}
+
+/** "AI Genie" scan-all entry point — refreshes every non-blocked supplier regardless of cadence. */
+export async function refreshAllSuppliers() {
+  const all = await db
+    .select({ id: suppliers.id })
+    .from(suppliers)
+    .where(ne(suppliers.status, "BLOCKED"));
+
+  const results: RefreshResult[] = [];
+  for (const s of all) {
+    try {
+      results.push(await refreshSupplierNews(s.id));
+    } catch (e) {
+      console.error(`news scan failed for ${s.id}`, e);
     }
   }
   return results;
