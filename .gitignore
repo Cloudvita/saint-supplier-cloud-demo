@@ -23,3 +23,5 @@ next-env.d.ts
 *.pem
 aws-credentials*
 /uploads/
+.vercel
+.env*
