@@ -19,8 +19,8 @@ export type NewsQuery = {
   companyName: string;
   ticker?: string | null;
   keywords?: string | null;
-  /** WEEKLY -> last 7 days, MONTHLY -> last 30 days */
-  cadence: "WEEKLY" | "MONTHLY";
+  /** DAILY -> last 1 day, WEEKLY -> last 7 days, MONTHLY -> last 30 days */
+  cadence: "DAILY" | "WEEKLY" | "MONTHLY";
 };
 
 /**

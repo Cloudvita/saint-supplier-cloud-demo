@@ -107,13 +107,16 @@ export function isAlertable(a: ClassifiedArticle): boolean {
 }
 
 /** Human-readable digest rendered into the supplier's Market News text field. */
+const CADENCE_LABEL: Record<string, string> = { DAILY: "Daily", WEEKLY: "Weekly", MONTHLY: "Monthly" };
+const CADENCE_WINDOW_DAYS: Record<string, string> = { DAILY: "1", WEEKLY: "7", MONTHLY: "30" };
+
 export function buildDigest(companyName: string, items: ClassifiedArticle[], cadence: string) {
   if (items.length === 0) {
     return `No material market news found for ${companyName} in the last ${
-      cadence === "WEEKLY" ? "7" : "30"
+      CADENCE_WINDOW_DAYS[cadence] ?? "7"
     } days.`;
   }
-  const header = `${cadence === "WEEKLY" ? "Weekly" : "Monthly"} market brief — ${companyName} (generated ${new Date().toISOString().slice(0, 10)})`;
+  const header = `${CADENCE_LABEL[cadence] ?? cadence} market brief — ${companyName} (generated ${new Date().toISOString().slice(0, 10)})`;
   const lines = items.map((i) => {
     const tag = i.eventType === "NONE" ? "INFO" : `${i.eventType}/${i.severity}`;
     const date = i.publishedAt.toISOString().slice(0, 10);

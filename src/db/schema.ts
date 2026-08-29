@@ -28,7 +28,7 @@ export const taxClassificationEnum = pgEnum("tax_classification", [
   "OTHER",
   "UNKNOWN",
 ]);
-export const newsCadenceEnum = pgEnum("news_cadence", ["WEEKLY", "MONTHLY"]);
+export const newsCadenceEnum = pgEnum("news_cadence", ["DAILY", "WEEKLY", "MONTHLY"]);
 export const riskEventTypeEnum = pgEnum("risk_event_type", [
   "ACQUISITION",
   "MERGER",

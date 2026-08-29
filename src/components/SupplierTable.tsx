@@ -87,7 +87,11 @@ export default function SupplierTable({ suppliers }: { suppliers: SupplierRow[] 
           <tbody className="divide-y divide-slate-100">
             {suppliers.map((s) => (
               <Fragment key={s.id}>
-                <tr className="hover:bg-slate-50/70">
+                <tr
+                  className={`hover:bg-slate-50/70 ${
+                    s.riskAlerts.length > 0 ? "bg-red-50/70" : ""
+                  }`}
+                >
                   <td className="px-4 py-3 font-mono text-xs text-slate-500">{s.supplierCode}</td>
                   <td className="px-4 py-3">
                     <button
