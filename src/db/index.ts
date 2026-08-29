@@ -7,36 +7,33 @@ import * as schema from "./schema";
  * Serverless hosts (Vercel/AWS Lambda) typically have no outbound IPv6 route.
  * On a dual-stack DB host (Neon, Supabase, RDS), Node's default resolver can
  * still hand back an AAAA record first, and the resulting connect attempt
- * hangs until the platform's own function timeout — not our connect_timeout,
- * which only bounds the handshake once a socket attempt starts. Forcing
- * IPv4-first resolution avoids that hang entirely.
+ * can hang. Forcing IPv4-first resolution avoids that.
  */
 dns.setDefaultResultOrder("ipv4first");
 
-const connectionString =
-  process.env.DATABASE_URL || "postgresql://postgres:postgres@localhost:5432/placeholder";
-
-const globalForDb = globalThis as unknown as { sql?: ReturnType<typeof postgres> };
-
-const isRemote = Boolean(process.env.DATABASE_URL) && !process.env.DATABASE_URL!.includes("localhost");
+if (!process.env.DATABASE_URL) {
+  throw new Error("DATABASE_URL is not set. Copy .env.example to .env(.local) and fill it in.");
+}
+const connectionString = process.env.DATABASE_URL;
+const isRemote = !connectionString.includes("localhost");
 
 /**
- * One pooled client per process. RDS/Neon/Supabase require TLS — postgres.js picks
- * that up from `?sslmode=require` in the URL. `prepare: false` is required when the
- * connection goes through a PgBouncer transaction-mode pooler (e.g. Supabase's
- * :6543 pooler), which doesn't support prepared statements; harmless otherwise.
+ * One pooled client per process (reused across warm invocations via Node's
+ * module cache — no need for a manual globalThis cache here, which risks
+ * colliding with an unrelated `globalThis.sql` set by another package).
+ * RDS/Neon/Supabase require TLS — postgres.js picks that up from
+ * `?sslmode=require` in the URL. `prepare: false` is required when the
+ * connection goes through a PgBouncer transaction-mode pooler (e.g.
+ * Supabase's :6543 pooler), which doesn't support prepared statements;
+ * harmless otherwise.
  */
-const client =
-  globalForDb.sql ??
-  postgres(connectionString, {
-    max: Number(process.env.DB_POOL_MAX ?? 10),
-    idle_timeout: 20,
-    connect_timeout: 10,
-    ssl: isRemote ? "require" : undefined,
-    prepare: !isRemote,
-  });
-
-if (process.env.NODE_ENV !== "production") globalForDb.sql = client;
+const client = postgres(connectionString, {
+  max: Number(process.env.DB_POOL_MAX ?? 10),
+  idle_timeout: 20,
+  connect_timeout: 10,
+  ssl: isRemote ? "require" : undefined,
+  prepare: !isRemote,
+});
 
 export const db = drizzle(client, { schema });
 export { schema };
