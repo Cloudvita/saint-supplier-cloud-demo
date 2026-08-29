@@ -1,6 +1,17 @@
+import dns from "node:dns";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import * as schema from "./schema";
+
+/**
+ * Serverless hosts (Vercel/AWS Lambda) typically have no outbound IPv6 route.
+ * On a dual-stack DB host (Neon, Supabase, RDS), Node's default resolver can
+ * still hand back an AAAA record first, and the resulting connect attempt
+ * hangs until the platform's own function timeout — not our connect_timeout,
+ * which only bounds the handshake once a socket attempt starts. Forcing
+ * IPv4-first resolution avoids that hang entirely.
+ */
+dns.setDefaultResultOrder("ipv4first");
 
 const connectionString =
   process.env.DATABASE_URL || "postgresql://postgres:postgres@localhost:5432/placeholder";
